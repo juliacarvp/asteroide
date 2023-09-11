@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroides</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas></canvas> <!-- Criar animações-->
+
+    <script>
+        var canvas = document.querySelector('canvas')
+        var c = canvas.getContext('2d') 
+
+        canvas.width = window.innerWidth  // Iguala a largura do navegador
+        canvas.height = window.innerHeight // Iguala a altura do navegador
+        
+        class Nave{ 
+            constructor({position, velocity}) { // Propriedades
+                this.position = position // {x, y}
+                this.velocity = velocity
+                this.rotation = 0
+            }
+
+            draw(){ // Desenhando a nave
+                c.save()
+
+                c.translate(this.position.x, this.position.y)
+                c.rotate(this.rotation)
+                c.translate(-this.position.x, -this.position.y)
+
+                c.arc(this.position.x, this.position.y, 5, 0, Math.PI * 2, false)
+                c.fillStyle = 'blue' // Bolinha dentro da nave
+                c.fill()
+
+                c.beginPath()
+                c.moveTo(this.position.x + 30, this.position.y)
+                c.lineTo(this.position.x - 10, this.position.y - 10)
+                c.lineTo(this.position.x - 10, this.position.y + 10)
+                c.closePath()
+
+                c.strokeStyle = 'white'
+                c.stroke()
+                c.restore()
+            }
+
+            // Movendo a nave
+
+            update(){
+                this.draw()
+                this.position.x += this.velocity.x
+                this.position.y += this.velocity.y
+            }
+        }
+
+        const nave = new Nave({
+            position: {x: canvas.width / 2, y: canvas.height / 2}, // Centralizando a nave no meio
+            velocity: {x: 0, y: 0},
+        })
+
+        nave.draw()
+
+        const keys = {
+            w: {
+                pressed: false
+            },
+            a: {
+                pressed: false
+            },
+            d: {
+                pressed: false
+            }
+        }
+
+        const speed = 3 // Definindo a velocidade
+        const rotational_speed = 0.05 // Definindo a velocidade
+        const friction = 0.97 // Definindo o valor de atrito
+
+        function animate(){
+            window.requestAnimationFrame(animate)
+            c.fillStyle = 'black' // Alterando a cor
+            c.fillRect(0, 0, canvas.width, canvas.height) // Propriedades do canvas
+            
+            nave.update()
+
+            // Declarando se caso a tecla W não for pressionada a nave não se move
+
+            if(keys.w.pressed) {
+                nave.velocity.x = Math.cos(nave.rotation) * speed
+                nave.velocity.y = Math.sin(nave.rotation) * speed
+            } else if (!keys.w.pressed){ // Suavisando quando a nave para
+                nave.velocity.x *= friction
+                nave.velocity.y *= friction
+            }
+
+            // Girando a nave para direita e esquerda
+            if(keys.d.pressed) nave.rotation += rotational_speed
+                else if(keys.a.pressed) nave.rotation -= rotational_speed
+        }
+
+        animate()
+
+        // Movendo a nave
+        window.addEventListener('keydown', (event) => {
+            switch(event.code){
+                case 'KeyW': // Impulso(frente)
+                    console.log('a was pressed')
+                    keys.w.pressed = true
+                    break
+                case 'KeyA': // Esquerda
+                    console.log('a was pressed')
+                    keys.a.pressed = true
+                    break
+                case 'KeyD': // Direita
+                    console.log('a was pressed')
+                    keys.d.pressed = true
+                    break
+            }
+            console.log(event)
+        })
+
+        window.addEventListener('keyup', (event) => {
+            switch(event.code){
+                case 'KeyW': // Impulso(frente)
+                    console.log('a was pressed')
+                    keys.w.pressed = false
+                    break
+                case 'KeyA': // Esquerda
+                    console.log('a was pressed')
+                    keys.a.pressed = false
+                    break
+                case 'KeyD': // Direita
+                    console.log('a was pressed')
+                    keys.d.pressed = false
+                    break
+            }
+            console.log(event)
+        })
+    </script>
+</body>
+</html>
